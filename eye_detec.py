@@ -2,8 +2,6 @@ import cv2
 import math
 import csv
 import time
-import record
-import parser
 
 class EyeTracker:
     def __init__(self, video_capture, monitor_width, monitor_height):
@@ -14,12 +12,14 @@ class EyeTracker:
         self.start_time = time.time()
         self.monitor_width = monitor_width
         self.monitor_height = monitor_height
+        self.fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        self.out = cv2.VideoWriter('out.avi', self.fourcc, 20.0, (640, 480))
 
     def run(self):
         while True:
             ret, frame = self.video_capture.read()
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
+            self.out.write(frame)
             eyes = self.eye_cascade.detectMultiScale(gray, 1.3, 5)
 
             data = []
@@ -64,11 +64,10 @@ class EyeTracker:
 
                 print(f'Angle of rotation: {angle} Focal distance {d}')
 
-
             cv2.imshow('Video', frame)
             if cv2.waitKey(1) == ord('q'):
                 break
-
+        out.release()
         self.video_capture.release()
         cv2.destroyAllWindows()
 
@@ -76,5 +75,3 @@ if __name__ == '__main__':
     video_capture = cv2.VideoCapture(0)
     eye_tracker = EyeTracker(video_capture, 2560, 1640)
     eye_tracker.run()
-    save_video()
-    #parser()
